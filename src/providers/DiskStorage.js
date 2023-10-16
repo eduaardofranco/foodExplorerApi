@@ -4,7 +4,7 @@ const uploadConfig = require('../configs/upload')
 
 class DiskStorage {
     async saveFile(file) {
-        await fs.promisses.rename(
+        await fs.promises.rename(
             path.resolve(uploadConfig.TMP_FOLDER, file),
             path.resolve(uploadConfig.UPLOADS_FOLDER, file)
         )
@@ -16,7 +16,7 @@ class DiskStorage {
         const filePath = path.resolve(uploadConfig.UPLOADS_FOLDER, file)
         try {
             //.stat verify the file satus, could be 'open, 'corrupted', etc...
-            await fs.promisses.stat(filePath)
+            await fs.promises.stat(filePath)
         } catch {
             return
         }
