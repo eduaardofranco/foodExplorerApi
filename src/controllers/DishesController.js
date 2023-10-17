@@ -55,6 +55,30 @@ class DishesController {
         })
     }
 
+    async index(request, response) {
+        const { name, ingredients } = request.query
+        const user_id = request.user.id
+        
+        let dishes
+        
+        if(ingredients) {
+            const filterIngredients = ingredients.split(',').map(ingredient => ingredient.trim())
+            
+            dishes = await knex('ingredients')
+            .whereIn('name', filterIngredients)
+
+        } else {
+            dishes = await knex('dishes')
+            .where({ user_id })
+            .whereLike('name', `%${name}%`)
+            .orderBy('name')
+        }
+       
+
+        return response.json(dishes)
+    }
+
+
     async delete(request, response) {
         const { id } = request.params
         await knex('dishes').where('id', id).delete()
