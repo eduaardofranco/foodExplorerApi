@@ -43,6 +43,24 @@ class DishesController {
 
         return response.json()
     }
+    async show(request, response) {
+        const { id } = request.params
+
+        const dish = await knex('dishes').where('id', id).first()
+        const ingredients = await knex('ingredients').where('dish_id', id)
+
+        return response.json({
+            ...dish,
+            ingredients
+        })
+    }
+
+    async delete(request, response) {
+        const { id } = request.params
+        await knex('dishes').where('id', id).delete()
+
+        return response.json()
+    }
 }
 
 module.exports = DishesController
