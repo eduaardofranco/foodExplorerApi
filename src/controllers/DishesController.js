@@ -57,25 +57,40 @@ class DishesController {
 
     async index(request, response) {
         const { name, ingredients } = request.query
-        const user_id = request.user.id
         
         let dishes
         
         if(ingredients) {
             const filterIngredients = ingredients.split(',').map(ingredient => ingredient.trim())
-            
+
             dishes = await knex('ingredients')
-            .whereIn('name', filterIngredients)
+            .select([
+                'dishes.id',
+                'dishes.name'
+            ])
+            .whereIn('ingredients.name', filterIngredients)
+            .whereLike('dishes.name', `%${name}%`)
+            .innerJoin('dishes', 'dishes.id', 'ingredients.dish_id')
+            .orderBy('dishes.name')
 
         } else {
             dishes = await knex('dishes')
-            .where({ user_id })
             .whereLike('name', `%${name}%`)
             .orderBy('name')
         }
+
+        const allIngredients = await knex('ingredients')
+        const dishesWithIngredients = dishes.map(dish => {
+            const dishIngredients = allIngredients.filter(ingredient => ingredient.dish_id === dish.id)
+
+            return {
+                ...dish,
+                ingredients: dishIngredients
+            }
+        })
        
 
-        return response.json(dishes)
+        return response.json(dishesWithIngredients)
     }
 
 
