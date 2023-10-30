@@ -2,6 +2,7 @@ require('express-async-errors')
 const AppError = require('./utils/AppError')
 const database = require('./database/sqlite')
 const uploadConfig = require('./configs/upload')
+const cors = require('cors')
 
 const express = require('express')
 
@@ -9,6 +10,8 @@ const routes = require('./routes')
 
 //initialize express
 const app = express()
+//define application to use cors to handle the requests from front end
+app.use(cors())
 //define type of data coming thruough body, in this case, json
 app.use(express.json())
 
