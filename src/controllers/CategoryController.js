@@ -18,6 +18,12 @@ class CategoryController {
 
         return response.json({ category })
     }
+
+    async show(request, response) {
+        const category = await knex('category').select('*')
+        
+        return response.json(category)
+    }
 }
 
 module.exports = CategoryController
