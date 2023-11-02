@@ -3,13 +3,13 @@ const AppError = require('../utils/AppError')
 
 class DishesController {
     async create(request, response) {
-        const { name, avatar, price, description, ingredients } = request.body
+        const { name, image, price, description, ingredients, category } = request.body
         const user_id = request.user.id
 
         if(!name) {
             throw new AppError('Name is required')
         }
-        if(!avatar) {
+        if(!image) {
             throw new AppError('Avatar is required')
         }
         if(!price) {
@@ -24,21 +24,26 @@ class DishesController {
         
         const [dish_id] = await knex('dishes')
         .insert({
-            name: name,
-            avatar: avatar,
-            price: price,
-            description: description,
-            user_id: user_id
+            name,
+            image,
+            price,
+            description,
+            user_id,
+            category_id: category
         })
 
-        const ingredientsList = ingredients.map(ingredient => {
-            return {
-                dish_id,
-                name: ingredient
-            }
-         })
+        if(ingredients !== 0) {
+            const ingredientsList = ingredients.map(ingredient => {
+                return {
+                    dish_id,
+                    name: ingredient
+                }
+             })
+    
+             await knex('ingredients').insert(ingredientsList)
+        }
 
-         await knex('ingredients').insert(ingredientsList)
+
 
 
         return response.json()
