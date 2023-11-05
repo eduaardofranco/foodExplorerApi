@@ -8,7 +8,6 @@ class DishImageController {
     async update(request, response) {
         const dish_id = request.params.id
         const imageFilename = request.file.filename
-        console.log('teste: ' +request.file)
 
 
         const dish = await knex('dishes')
