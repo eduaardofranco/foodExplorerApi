@@ -1,16 +1,23 @@
 const knex = require('../database/knex')
 const AppError = require('../utils/AppError')
+const DiskStorage = require('../providers/DiskStorage')
 
 class DishesController {
     async create(request, response) {
-        const { name, image, price, description, ingredients, category } = request.body
+
+        const { name, price, description, ingredients, category } = request.body
+        
         const user_id = request.user.id
+        //image variable from request.file
+        const imageFilename = request.file.filename
+
+        const diskStorage = new DiskStorage()
 
         if(!name) {
             throw new AppError('Name is required')
         }
-        if(!image) {
-            throw new AppError('Avatar is required')
+        if(!imageFilename) {
+            throw new AppError('Image is required')
         }
         if(!price) {
             throw new AppError('Price is required')
@@ -21,18 +28,21 @@ class DishesController {
         if(!ingredients) {
             throw new AppError('Ingredients is required')
         }
+
+        //will return name with hash
+        const fileName = await diskStorage.saveFile(imageFilename)
         
         const [dish_id] = await knex('dishes')
         .insert({
             name,
-            image,
+            image: fileName,
             price,
             description,
             user_id,
             category_id: category
         })
 
-        if(ingredients !== 0) {
+        if(ingredients.length !== 0) {
             const ingredientsList = ingredients.map(ingredient => {
                 return {
                     dish_id,
