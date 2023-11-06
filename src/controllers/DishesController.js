@@ -8,16 +8,18 @@ class DishesController {
         const { name, price, description, ingredients, category } = request.body
         
         const user_id = request.user.id
+        
         //image variable from request.file
         const imageFilename = request.file.filename
 
+
         const diskStorage = new DiskStorage()
 
-        if(!name) {
-            throw new AppError('Name is required')
-        }
         if(!imageFilename) {
             throw new AppError('Image is required')
+        }
+        if(!name) {
+            throw new AppError('Name is required')
         }
         if(!price) {
             throw new AppError('Price is required')
