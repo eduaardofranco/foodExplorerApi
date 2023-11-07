@@ -60,6 +60,47 @@ class DishesController {
 
         return response.json()
     }
+
+    async update(request, response) {
+        const { image, name, category_id, ingredients, price, description } = request.body
+        const dish_id = request.params.id
+
+        const dish = await knex('dishes').where({ id: dish_id})
+
+        if (!dish) {
+            return new AppError('Dish not found')
+          }
+
+        const updated_dish = await knex('dishes')
+        .where({ id: dish_id })
+        .update({
+            image,
+            name,
+            category_id,
+            price,
+            description,
+            updated_at: knex.fn.now()
+        })
+
+        if (ingredients && ingredients.length !== 0) {
+            // Delete existing ingredients for the dish
+            await knex('ingredients').where({ dish_id }).del();
+      
+            // Insert the new ingredients
+            const listIngredients = ingredients.map((ingredient) => {
+              return {
+                dish_id,
+                name: ingredient,
+              };
+            });
+      
+            await knex('ingredients').insert(listIngredients);
+          }
+
+        return response.json({ updated_dish })
+    }
+
+
     async show(request, response) {
         const { id } = request.params
 
