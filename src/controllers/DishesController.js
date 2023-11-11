@@ -66,7 +66,10 @@ class DishesController {
         const dish_id = request.params.id
 
         //parse ingredients that are coming as a string
-        const ingredients_list = JSON.parse(String(ingredients).trim());
+        let ingredients_list
+        if(ingredients) {
+            ingredients_list = JSON.parse(String(ingredients).trim());
+        }
 
         
         const dish = await knex('dishes').where({ id: dish_id }).first()
