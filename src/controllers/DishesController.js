@@ -64,8 +64,10 @@ class DishesController {
     async update(request, response) {
         const { image, name, category_id, ingredients, price, description } = request.body
         const dish_id = request.params.id
-       
-        const imageFilename = request.file.filename
+
+        //parse ingredients that are coming as a string
+        const ingredients_list = JSON.parse(String(ingredients).trim());
+
         
         const dish = await knex('dishes').where({ id: dish_id }).first()
         
@@ -73,7 +75,9 @@ class DishesController {
             return new AppError('Dish not found')
         }
         
-        if (imageFilename) {
+        //if image was uploaded
+        if (request.file) {
+            const imageFilename = request.file.filename
 
             const diskStorage = new DiskStorage()
             
@@ -100,19 +104,19 @@ class DishesController {
         })
 
 
-        if (ingredients && ingredients.length !== 0) {
+        if (ingredients_list && ingredients_list.length !== 0) {
             // Delete existing ingredients for the dish
             await knex('ingredients').where({ dish_id }).del();
       
             // Insert the new ingredients
-            const listIngredients = ingredients.map((ingredient) => {
+            const allIngredients = ingredients_list.map((ingredient) => {
               return {
                 dish_id,
                 name: ingredient,
               };
             });
       
-            await knex('ingredients').insert(listIngredients);
+            await knex('ingredients').insert(allIngredients);
           }
 
         return response.json({ updated_dish })
