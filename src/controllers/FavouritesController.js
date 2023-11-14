@@ -27,7 +27,7 @@ class FavouritesController {
         const favourites = await knex('favourites')
         .where({ user_id })
 
-        return response.json( { favourites })
+        return response.json( favourites )
     }
     async delete(request, response) {
         
