@@ -35,7 +35,7 @@ class FavouritesController {
         const user_id  = request.user.id
 
         await knex('favourites')
-        .where({ dish_id })
+        .where({ dish_id, user_id })
         .delete()
 
         return response.json()
