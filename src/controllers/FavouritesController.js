@@ -34,9 +34,19 @@ class FavouritesController {
         const dish_id = request.params.id
         const user_id  = request.user.id
 
-        await knex('favourites')
-        .where({ dish_id, user_id })
-        .delete()
+        try {
+            await knex('favourites')
+            .where({ dish_id, user_id })
+            .delete()
+        } catch (error) {
+            if(error) {
+                throw new AppError('Error deleting: ', error.message)
+            }
+            else {
+                throw new AppError('Error deleting favourite')
+            }
+            throw new AppError('Error deleting favourite')
+        }
 
         return response.json()
     }

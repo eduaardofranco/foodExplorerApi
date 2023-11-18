@@ -146,15 +146,28 @@ class DishesController {
         if(ingredients) {
             const filterIngredients = ingredients.split(',').map(ingredient => ingredient.trim())
 
-            dishes = await knex('ingredients')
-            .select([
-                'dishes.id',
-                'dishes.name'
-            ])
-            .whereIn('ingredients.name', filterIngredients)
-            .whereLike('dishes.name', `%${name}%`)
-            .innerJoin('dishes', 'dishes.id', 'ingredients.dish_id')
-            .orderBy('dishes.name')
+            try {
+                dishes = await knex('ingredients')
+                .select([
+                    'dishes.id',
+                    'dishes.name'
+                ])
+                .whereIn('ingredients.name', filterIngredients)
+                .whereLike('dishes.name', `%${name}%`)
+                .innerJoin('dishes', 'dishes.id', 'ingredients.dish_id')
+                .orderBy('dishes.name')
+                
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    // Handle unauthorized error
+                    throw new AppError('Unauthorized: ', error.response.message)
+                    console.error('Unauthorized: Please check your authentication credentials.');
+                  } else {
+                    // Handle other errors
+                    throw new AppError('Error fetching dishes: ', error.message)
+                    console.error('Error fetching dishes:', error.message);
+                  }
+            }
 
         } else {
             dishes = await knex('dishes')
