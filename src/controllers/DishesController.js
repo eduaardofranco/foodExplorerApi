@@ -130,6 +130,9 @@ class DishesController {
         const { id } = request.params
 
         const dish = await knex('dishes').where('id', id).first()
+        if(!dish) {
+            throw new AppError('Dish not found')
+        }
         const ingredients = await knex('ingredients').where('dish_id', id)
 
         return response.json({
@@ -164,7 +167,7 @@ class DishesController {
                     console.error('Unauthorized: Please check your authentication credentials.');
                   } else {
                     // Handle other errors
-                    throw new AppError('Error fetching dishes: ', error.message)
+                    throw new AppError('Error fetching dishes: ', error.response.message)
                     console.error('Error fetching dishes:', error.message);
                   }
             }

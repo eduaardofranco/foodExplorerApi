@@ -14,7 +14,9 @@ const disheImageController = new DisheImageController()
 const upload = multer(uploadConfig.MULTER)
 
 const dishesRoutes = Router()
+
 dishesRoutes.use(ensureAuthenticated)
+
 dishesRoutes.post('/', upload.single('image'),  dishesController.create)
 dishesRoutes.get('/:id', dishesController.show)
 dishesRoutes.delete('/:id', dishesController.delete)

@@ -8,8 +8,9 @@ function ensureAuthenticated(request, response, next) {
     if(!authHeader) {
         throw new AppError('Token not informed', 401)
     }
-
+    
     const [,token] = authHeader.split(' ',)
+    
 
     try {
         //check if its a valid token
@@ -24,6 +25,7 @@ function ensureAuthenticated(request, response, next) {
     } catch (error) {
         throw new AppError('Invalid Token', 401)
     }
+
 }
 
 module.exports = ensureAuthenticated
