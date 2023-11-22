@@ -142,54 +142,58 @@ class DishesController {
     }
 
     async index(request, response) {
-        const { name, ingredients } = request.query
-        
+        const { nameOrIngredient } = request.query
         let dishes
         
-        if(ingredients) {
-            const filterIngredients = ingredients.split(',').map(ingredient => ingredient.trim())
-
-            try {
-                dishes = await knex('ingredients')
-                .select([
-                    'dishes.id',
-                    'dishes.name'
-                ])
-                .whereIn('ingredients.name', filterIngredients)
-                .whereLike('dishes.name', `%${name}%`)
-                .innerJoin('dishes', 'dishes.id', 'ingredients.dish_id')
-                .orderBy('dishes.name')
-                
-            } catch (error) {
-                if (error.response && error.response.status === 401) {
-                    // Handle unauthorized error
-                    throw new AppError('Unauthorized: ', error.response.message)
-                    console.error('Unauthorized: Please check your authentication credentials.');
-                  } else {
-                    // Handle other errors
-                    throw new AppError('Error fetching dishes: ', error.response.message)
-                    console.error('Error fetching dishes:', error.message);
-                  }
-            }
-
-        } else {
+        try {
             dishes = await knex('dishes')
-            .whereLike('name', `%${name}%`)
-            .orderBy('name')
+        } catch (error) {
+            throw new AppError('Error fetching dishes', error.message)
         }
-
+        
+        //if there is parameter on search, search by name or ingredient
+        if(nameOrIngredient) {
+            // By dish name
+            const dishesByName = await knex('dishes')
+            .where('name', 'like', `%${nameOrIngredient}%`)
+            .orderBy('name');
+    
+            
+            //by ingredients
+            const filteredIngredients  = await knex('ingredients')
+            .whereLike('name', `%${nameOrIngredient}%`)
+    
+            let dishesByIngredients
+    
+            dishesByIngredients = filteredIngredients.map(ingredient => {
+                // Buscar prato correspondente ao ingrediente
+                const dish = dishes.filter(dish => dish.id === ingredient.dish_id)
+    
+                return dish
+    
+            })
+    
+    
+    
         const allIngredients = await knex('ingredients')
-        const dishesWithIngredients = dishes.map(dish => {
+        const dishesWithIngredients = dishesByName.map(dish => {
             const dishIngredients = allIngredients.filter(ingredient => ingredient.dish_id === dish.id)
-
+    
             return {
-                ...dish,
-                ingredients: dishIngredients
+                ...dish
             }
         })
-       
-
-        return response.json(dishesWithIngredients)
+        const filteredDishes = [
+            ...dishesWithIngredients,
+            ...dishesByIngredients.flat()
+        ]
+    
+        return response.json(filteredDishes)
+        }
+        //otherwise, response all dishes
+        else {
+            return response.json(dishes)
+        }
     }
 
 
@@ -198,7 +202,7 @@ class DishesController {
         await knex('dishes').where('id', id).delete()
 
         return response.json()
-    }
+    } 
 }
 
 module.exports = DishesController
