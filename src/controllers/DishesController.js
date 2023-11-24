@@ -153,6 +153,7 @@ class DishesController {
         
         //if there is parameter on search, search by name or ingredient
         if(nameOrIngredient) {
+            console.log('tem')
             // By dish name
             const dishesByName = await knex('dishes')
             .where('name', 'like', `%${nameOrIngredient}%`)
@@ -162,6 +163,7 @@ class DishesController {
             //by ingredients
             const filteredIngredients  = await knex('ingredients')
             .whereLike('name', `%${nameOrIngredient}%`)
+            .orderBy('name');
     
             let dishesByIngredients
     
