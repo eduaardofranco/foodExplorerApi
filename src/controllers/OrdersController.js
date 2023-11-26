@@ -7,15 +7,24 @@ class OrdersController {
         const user_id  = request.user.id
         const { description } = request.body
 
+        if(!description) {
+            throw new AppError('No items informed', 202)
+        }
+
         if(!user_id) {
             throw new AppError('User not found', 202)
         }
 
-        const [order_id] = await knex('orders')
-        .insert({
-            user_id,
-            description
-        }) 
+        try {
+            const [order_id] = await knex('orders')
+            .insert({
+                user_id,
+                description
+            }) 
+        } catch (error) {
+            throw new AppError('Error inserting order')
+        }
+
 
         return response.json({ order_id })
 
