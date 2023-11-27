@@ -21,12 +21,11 @@ class OrdersController {
                 user_id,
                 description
             }) 
+
+            return response.json({ order_id })
         } catch (error) {
             throw new AppError('Error inserting order')
         }
-
-
-        return response.json({ order_id })
 
     }
 
