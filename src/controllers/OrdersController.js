@@ -6,6 +6,7 @@ class OrdersController {
         
         const user_id  = request.user.id
         const { description } = request.body
+        console.log(typeof description)
 
         if(!description) {
             throw new AppError('No items informed', 202)
@@ -16,6 +17,7 @@ class OrdersController {
         }
 
         try {
+            console.log('entrou')
             const [order_id] = await knex('orders')
             .insert({
                 user_id,
@@ -31,9 +33,20 @@ class OrdersController {
 
     async index(request, response) {
         const user_id  = request.user.id
+        let orders = {}
 
-        const orders = await knex('orders')
-        .where({ user_id })
+        const user = await knex('users')
+        .where({ id: user_id }).first()
+
+        //if is admin get all orders
+        if(user.role == 'admin') {
+            orders = await knex('orders')    
+        }
+        //else get only from this user
+        else {
+            orders = await knex('orders')
+            .where({ user_id })
+        }
 
         return response.json( orders )
     }
