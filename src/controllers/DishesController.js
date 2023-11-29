@@ -153,44 +153,37 @@ class DishesController {
         
         //if there is parameter on search, search by name or ingredient
         if(nameOrIngredient) {
-            console.log('tem')
             // By dish name
             const dishesByName = await knex('dishes')
             .where('name', 'like', `%${nameOrIngredient}%`)
-            .orderBy('name');
+            .orderBy('name')
+            .groupBy('name');
+
     
             
             //by ingredients
             const filteredIngredients  = await knex('ingredients')
             .whereLike('name', `%${nameOrIngredient}%`)
-            .orderBy('name');
-    
+            .orderBy('name')
+            .groupBy('name');
+            
             let dishesByIngredients
-    
+            
             dishesByIngredients = filteredIngredients.map(ingredient => {
                 // Buscar prato correspondente ao ingrediente
                 const dish = dishes.filter(dish => dish.id === ingredient.dish_id)
-    
+                
                 return dish
-    
+                
             })
-    
-    
-    
-        const allIngredients = await knex('ingredients')
-        const dishesWithIngredients = dishesByName.map(dish => {
-            const dishIngredients = allIngredients.filter(ingredient => ingredient.dish_id === dish.id)
-    
-            return {
-                ...dish
-            }
-        })
+        
         const filteredDishes = [
-            ...dishesWithIngredients,
-            ...dishesByIngredients.flat()
+            ...dishesByName,
+            ...dishesByIngredients.flat().filter(dish => {
+                return !dishesByName.some(d => d.id === dish.id)
+            })
         ]
-    
-        return response.json(filteredDishes)
+            return response.json(filteredDishes)
         }
         //otherwise, response all dishes
         else {
