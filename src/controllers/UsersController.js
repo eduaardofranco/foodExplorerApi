@@ -7,12 +7,14 @@ class UsersController {
     async create(request, response) {
         const { name, email, password, role } = request.body
 
+        const emailLowerCase = email.toLowerCase()
+
         //validate role
         const validRoles = ['admin', 'user']
         //if there is any, check and set otherwise use default
         const validatedRole = validRoles.includes(role) ? role : 'user'
 
-        const checkUserExists = await knex('users').where({ email }).first()
+        const checkUserExists = await knex('users').where({ email: emailLowerCase }).first()
 
         if(checkUserExists) {
             throw new AppError('E-mail already registered!')
@@ -25,7 +27,7 @@ class UsersController {
         .returning('*')
         .insert({
             name,
-            email,
+            email: emailLowerCase,
             password: hashedPassword,
             role: validatedRole
         })
