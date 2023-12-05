@@ -7,9 +7,16 @@ const { sign } = require('jsonwebtoken')
 class SessionsController {
     async create(request, response) {
         const { email, password } = request.body
+        
+        let emailLowerCase
+        //convert email to lowercase
+        if(email) {
+          emailLowerCase = email.toLowerCase()
+
+        }
 
         //check user exists by email
-        const user = await knex('users').where('email', email).first()
+        const user = await knex('users').where('email', emailLowerCase).first()
 
         if(!user) {
             throw new AppError('E-mail or password incorret', 401)
