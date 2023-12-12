@@ -1,4 +1,5 @@
 # FoodExplorer - Backend
+This is the Final Project of the Explorer Module - RocketSeat Programming School.
 
 Welcome to the backend repository for the **FoodExplorer** project. This backend was developed using Node.js, Express.js, and SQLite to support the frontend application that enables the exploration of a restaurant menu and the placement of orders.
 
